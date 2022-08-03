@@ -1,4 +1,5 @@
 const env = require('./env.json');
+const ethers = require('ethers');
 
 exports.keys = 'my-cookie-secret-key';
 exports.security = {
@@ -32,6 +33,8 @@ exports.mysql = {
     app: true,
     agent: true,
 };
+
+exports.operator = new ethers.utils.SigningKey('0x' + env.OPERATOR_PRIV);
 
 exports.assets = './assets/'
 

@@ -1,10 +1,10 @@
-const Web3 = require('web3');
+const ethers = require("ethers");
 const constant = require('./app/utils/constant')
 
 // TODO: verify chain name
 module.exports = app => {
     app.validator.addRule('address', (rule, value) => {
-        if (!Web3.utils.isAddress(value)) {
+        if (!ethers.utils.isAddress(value)) {
             return 'illegal addr';
         }
     })

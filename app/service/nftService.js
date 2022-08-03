@@ -1,44 +1,51 @@
 const Service = require('egg').Service;
+const ethers = require('ethers');
 
 class NFTService extends Service {
-    async queryNFT(addr, contract, tokenId) {
-        let opt = {};
-        if (addr) {
-            opt.owner = addr;
+    async getInitParams(chain_name, token_id) {
+        const appDB = this.app.mysql.get('app');
+        let result = await appDB.get(`initialization_${chain_name}`, {token_id: token_id});
+        if (!result || result.length === 0) { // TODO: adjust initialize algorithm
+            /* generate initial attrs, assign 1 to every component */
+            const dataDB = this.app.mysql.get('chainData');
+            let componentIds = await dataDB.select(`m4m_components_${chain_name}`, {});
+            componentIds = componentIds.map(r => ethers.BigNumber.from(r.component_id));
+            const componentNums = componentIds.map(r => ethers.BigNumber.from(1));
+            const hash = ethers.utils.solidityKeccak256(['bytes'],
+                [ethers.utils.solidityPack(['uint', `uint[${componentIds.length}]`, `uint[${componentNums.length}]`],
+                    [token_id, componentIds, componentNums])]);
+            const sig = ethers.utils.joinSignature(await this.config.operator.signDigest(hash));
+            // save to db
+            const data = {
+                chain_name: chain_name,
+                token_id: token_id,
+                component_ids: componentIds.join(','),
+                component_nums: componentNums.join(','),
+                sig: sig
+            };
+            await appDB.insert(`initialization_${chain_name}`, data);
+            return data;
         }
-        if (contract) {
-            opt.contract = contract;
-            if (tokenId) {
-                opt.token_id = tokenId;
-            }
-        }
-        return this.app.mysql.select('nft', {where: opt});
+        return result;
     }
 
-    async queryFavorite(addr, contract) {
-        let opt = {addr: addr};
-        if (contract) {
-            opt.contract = contract;
+    async getAttrs(chain_name, token_id) {
+        const dataDB = this.app.mysql.get('chainData');
+        const result = await dataDB.select(`m4m_attrs_${chain_name}`, {
+            where: {token_id: token_id},
+        })
+        let componentIds = [];
+        let componentNums = [];
+        for (const item of result) {
+            componentIds.push(item.component_id);
+            componentNums.push(item.component_num);
         }
-        return this.app.mysql.select('favorite', {where: opt});
-    }
-
-    async favorite(addr, contract, token_id, uriParam) {
-        let uri = await this.app.mysql.select('nft', {
-            where: {contract: contract, token_id: token_id},
-            columns: ['uri'],
-            distinct: true
-        });
-        if (uri === undefined || uri.length === 0) {
-            uri = uriParam;
-        } else {
-            uri = uri[0].uri;
+        return {
+            chain_name: chain_name,
+            token_id: token_id,
+            component_ids: componentIds.join(','),
+            component_nums: componentNums.join(','),
         }
-        await this.app.mysql.insert('favorite', {addr: addr, contract: contract, token_id: token_id, uri: uri});
-    }
-
-    async notFavorite(addr, contract, token_id) {
-        await this.app.mysql.delete('favorite', {addr: addr, contract: contract, token_id: token_id});
     }
 }
 
