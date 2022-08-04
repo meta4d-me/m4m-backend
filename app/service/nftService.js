@@ -34,17 +34,11 @@ class NFTService extends Service {
         const result = await dataDB.select(`m4m_attrs_${chain_name}`, {
             where: {token_id: token_id},
         })
-        let componentIds = [];
-        let componentNums = [];
-        for (const item of result) {
-            componentIds.push(item.component_id);
-            componentNums.push(item.component_num);
-        }
         return {
             chain_name: chain_name,
             token_id: token_id,
-            component_ids: componentIds.join(','),
-            component_nums: componentNums.join(','),
+            component_ids: result.component_ids,
+            component_nums: result.component_nums,
         }
     }
 }
