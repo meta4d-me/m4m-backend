@@ -1,7 +1,7 @@
 create table if not exists `initialization`
 (
     chain_name     varchar(10)   not null,
-    token_id       varchar(64)   not null,
+    token_id       varchar(256)   not null,
     component_ids  varchar(1000) not null,
     component_nums varchar(1000) not null,
     sig            varchar(132)  not null,

@@ -6,7 +6,11 @@
 
 method: get
 
-url: api/v1/m4m-nft/initialization?token_id=xxx&&chain_name=xxx
+url: api/v1/m4m-nft/initialization?original_addr=xxx&&original_token_id=xxx&&chain_name=xxx
+
+> original_addr: contract address of parsed nft
+>
+> original_token_id: token id of parsed nft
 
 return:
 
@@ -16,7 +20,7 @@ return:
   "error": "",
   "data": [
     {
-      "token_id": "xxx",
+      "m4m_token_id": "81449136432453593952252541924876232285909669905506625386482230805063052117465",
       "chain_name": "xxx",
       "component_ids": [
         1,
@@ -36,11 +40,15 @@ return:
 }
 ```
 
+> m4m_token_id: token id of m4m NFT
+>
+> m4m_token_id is type of u256
+
 ### Get M4M-NFT Attrs
 
 method: get
 
-url: api/v1/m4m-nft/attrs?token_id=xxx&&chain_name=xxx
+url: api/v1/m4m-nft/attrs?m4m_token_id=xxx&&chain_name=xxx
 
 return:
 
@@ -50,7 +58,7 @@ return:
   "error": "",
   "data": [
     {
-      "token_id": "xxx",
+      "m4m_token_id": "81449136432453593952252541924876232285909669905506625386482230805063052117465",
       "chain_name": "xxx",
       "component_ids": [
         1,

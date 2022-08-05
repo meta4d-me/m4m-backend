@@ -9,8 +9,12 @@ class NFTController extends Controller {
         ctx.validate({
             chain_name: 'chainName'
         }, param);
-        if (param.token_id) {
-            ctx.body = data.newNormalResp(await ctx.service.nftService.getInitParams(param.chain_name, param.token_id));
+        ctx.validate({
+            original_addr: 'address'
+        }, param);
+        if (param.original_token_id) {
+            ctx.body = data.newNormalResp(await ctx.service.nftService.getInitParams(param.chain_name,
+                param.original_addr, param.original_token_id));
         } else {
             ctx.body = data.newResp(constant.RESP_CODE_ILLEGAL_PARAM, "illegal param: token_id");
         }
@@ -22,8 +26,8 @@ class NFTController extends Controller {
         ctx.validate({
             chain_name: 'chainName'
         }, param);
-        if (param.token_id) {
-            ctx.body = data.newNormalResp(await ctx.service.nftService.getAttrs(param.chain_name, param.token_id));
+        if (param.m4m_token_id) {
+            ctx.body = data.newNormalResp(await ctx.service.nftService.getAttrs(param.chain_name, param.m4m_token_id));
         } else {
             ctx.body = data.newResp(constant.RESP_CODE_ILLEGAL_PARAM, "illegal param: token_id");
         }
