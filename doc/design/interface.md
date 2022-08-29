@@ -2,6 +2,41 @@
 
 ## M4M-NFT
 
+### Prepare New Attr
+
+method: post
+
+url: api/v1/component/generate
+
+params:
+
+```json
+{
+  // code of equipment, should be string of number
+  "component_id": "",
+  // full name of equipment
+  "name": "",
+  // abbrevation of name
+  "symbol": "",
+  // ipfs hash
+  "uri": "",
+  // attributes that compliant Opense
+  "attrs": {}
+}
+```
+
+returns:
+
+```json
+{
+  "code": "",
+  "error": "",
+  "data": {}
+}
+```
+
+> note: No authentication temporary
+
 ### Get Initialization Params
 
 method: get
@@ -76,6 +111,34 @@ return:
   ]
 }
 ```
+
+### Bind Snapshot
+
+bind ipfs hash to m4m-nft
+
+method: post
+
+params:
+
+```json
+{
+  "m4m_token_id": "",
+  "uri": ""
+}
+```
+
+url: api/v1/m4m-nft/bind-snapshot
+
+return:
+
+```json
+{
+  "code": "",
+  "error": "",
+  "data": {}
+}
+```
+
 
 ## Return Value
 
