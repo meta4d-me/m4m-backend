@@ -2,7 +2,7 @@
 
 ## M4M-NFT
 
-### Prepare New Attr
+### Prepare New Component
 
 method: post
 
@@ -36,6 +36,30 @@ returns:
 ```
 
 > note: No authentication temporary
+
+### Get Component Status
+
+method: get
+
+url: api/v1/component/status/:component_id
+
+returns:
+
+```json
+{
+  "code": "",
+  "error": "",
+  "data": {
+    "status": 1
+  }
+}
+```
+
+| status | desc |
+| --- | --- |
+| 0 | pending, wait tx confirmed |
+| 1 | success, created |
+| 2 | create failed |
 
 ### Get Initialization Params
 
@@ -116,6 +140,8 @@ return:
 
 bind ipfs hash to m4m-nft
 
+url: api/v1/m4m-nft/bind-snapshot
+
 method: post
 
 params:
@@ -127,8 +153,6 @@ params:
 }
 ```
 
-url: api/v1/m4m-nft/bind-snapshot
-
 return:
 
 ```json
@@ -139,6 +163,35 @@ return:
 }
 ```
 
+> note: No authentication temporary
+
+### Get M4M-NFT Metadata
+
+Return the metadata, compliant with opensea
+
+> refer: https://docs.opensea.io/docs/metadata-standards
+
+method: get
+
+url: api/tokenuri/:contract/:token_id
+
+> example: https://api.meta-4d.me/api/tokenuri/0xb6bb4812a8e075cbad0128e318203553c4ca463d/0
+
+return:
+
+```json
+{
+  "description": "Friendly OpenSea Creature that enjoys long swims in the ocean.",
+  "external_url": "https://meta-4d.me",
+  "image": "https://ipfs.io/.....",
+  "name": "M4M NFT XXXX",
+  "attributes": [
+    {},
+    {},
+    {}
+  ]
+}
+```
 
 ## Return Value
 
