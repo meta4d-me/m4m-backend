@@ -36,6 +36,14 @@ exports.mysql = {
 
 exports.operator = new ethers.utils.SigningKey('0x' + env.OPERATOR_PRIV);
 
+exports.components = {
+    mumbai: "0xb6bb4812a8e075cbad0128e318203553c4ca463d",
+}
+
+exports.m4mNFT = {
+    mumbai: "0xfa860d48571fa0d19324cbde77e0fbdfdffb0a47",
+}
+
 exports.assets = './assets/'
 
 exports.logger = {

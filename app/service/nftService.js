@@ -1,7 +1,66 @@
 const Service = require('egg').Service;
 const ethers = require('ethers');
+const {getNodeUrl, METADATA_EXTERNAL, AUTH_CODE_1} = require("../utils/constant");
+const ComponentABI = require("../../contract-abi/M4mComponent.json")
 
 class NFTService extends Service {
+    // TODO: check position attrs
+    async generateComponent(params) {
+        if (!(await this.checkSig(params.component_id, params.sig, AUTH_CODE_1))) {
+            throw new Error("ill sig")
+        }
+        let provider = new ethers.providers.JsonRpcProvider(getNodeUrl(params.chain_name));
+        let wallet = new ethers.Wallet(this.config.operator.privateKey, provider);
+        let componentContract = new ethers.Contract(this.config.components[params.chain_name], ComponentABI, wallet);
+        let tx = await componentContract.prepareNewToken(ethers.BigNumber.from(params.component_id,
+            params.name, params.symbol));
+        // if tx send success, update metadata
+        const appDB = this.app.mysql.get('app');
+        await appDB.query(`replace
+        into metadata_
+        ${params.chain_name}
+        VALUES
+        (
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?
+        )`, [params.chain_name, this.config.components[params.chain_name], params.component_id,
+            params.description, params.name, params.uri, JSON.stringify(params.attributes)]);
+        return tx.hash;
+    }
+
+    async bindSnapshot(params) {
+        if (!(await this.checkSig(params.token_id, params.sig, AUTH_CODE_1))) {
+            throw new Error("ill sig")
+        }
+        const attrs = await this.formatAttrs(params.chain_name, params.token_id);
+        const appDB = this.app.mysql.get('app');
+        await appDB.query(`replace
+        into metadata_
+        ${params.chain_name}
+        VALUES
+        (
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?
+        )`, [params.chain_name, this.config.m4mNFT[params.chain_name], params.m4m_token_id,
+            params.description, params.name, params.uri, JSON.stringify(attrs)]);
+    }
+
+    async getComponentStatus(chainName, componentId) {
+        let result = await this.app.mysql.get('chainData').get(`m4m_components_${chainName}`, {component_id: componentId});
+        let status = !result || result.length ? 0 : 1;
+        return {status: status}
+    }
+
     async getInitParams(chain_name, original_addr, original_token_id) {
         const appDB = this.app.mysql.get('app');
         let hash = ethers.utils.solidityKeccak256(['bytes'],
@@ -44,6 +103,78 @@ class NFTService extends Service {
             component_ids: result[0].component_ids,
             component_nums: result[0].component_nums,
         }
+    }
+
+    async getMetadata(contract, tokenId) {
+        for (const chain_name in this.config.components) {
+            if (this.config.components[chain_name] === contract) {
+                const metadata = await this.mysql.get('app').get(`metadata_${chain_name}`, {
+                    contract: contract,
+                    token_id: tokenId
+                });
+                return {
+                    description: metadata.description,
+                    external_url: METADATA_EXTERNAL,
+                    image: metadata.uri,
+                    name: metadata.name,
+                    attributes: JSON.stringify(metadata.attributes),
+                }
+            }
+        }
+        for (const chain_name in this.config.m4mNFT) {
+            if (this.config.m4mNFT[chain_name] === contract) {
+                const metadata = await this.mysql.get('app').get(`metadata_${chain_name}`, {
+                    contract: contract,
+                    token_id: tokenId
+                });
+                return {
+                    description: metadata.description,
+                    external_url: METADATA_EXTERNAL,
+                    image: metadata.uri,
+                    name: metadata.name,
+                    attributes: JSON.stringify(await this.formatAttrs(chain_name, tokenId)),
+                }
+            }
+        }
+        // there is no contract in config
+        return {};
+    }
+
+    async checkSig(msg, sig, authCode) {
+        const digest = ethers.utils.hashMessage(msg);
+        const signer = ethers.utils.recoverAddress(digest, sig)
+        const auth = await this.mysql.get('app').get('authentication', {addr: signer});
+        return auth.auth_code === authCode;
+    }
+
+    async formatAttrs(chain_name, token_id) {
+        const components = await this.app.mysql.get('chainData').select(`m4m_attrs_${chain_name}`, {
+            columns: ['component_ids', "component_nums"],
+            where: {
+                token_id: token_id,
+            }
+        });
+        const componentIds = components[0].component_id.split(",");
+        const componentNums = components[0].component_nums.split(",");
+        const appDB = this.app.mysql.get('app');
+        const componentMetadata = await appDB.select(`metadata_${chain_name}`, {
+            columns: ['token_id', 'name', 'attributes'], where: {
+                token_id: componentIds,
+            }
+        });
+        const attrs = [];
+        for (const metadata of componentMetadata) {
+            for (let i = 0; i < componentIds.length; i++) {
+                if (metadata.token_id === componentIds[i]) {
+                    const componentAttrs = JSON.parse(metadata.attributes);
+                    attrs.push({
+                        trait_type: componentAttrs.find(r => r.trait_type === "position").value,
+                        value: componentNums[i] > 0 ? `${componentNums[i]} ${metadata.name}` : metadata.name,
+                    })
+                }
+            }
+        }
+        return attrs;
     }
 }
 
