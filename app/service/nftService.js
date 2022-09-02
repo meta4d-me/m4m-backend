@@ -51,10 +51,14 @@ class NFTService extends Service {
         if (!result || result.length === 0) { // TODO: adjust initialize algorithm
             /* generate initial attrs, assign 1 to every component */
             const dataDB = this.app.mysql.get('chainData');
-            let componentIds = await dataDB.select(`m4m_components_${chain_name}`, {});
-            componentIds = componentIds.map(r => {
-                return ethers.BigNumber.from(r.component_id);
-            });
+            let _componentIds = await dataDB.select(`m4m_components_${chain_name}`, {});
+            const componentIds = [];
+            for (const cID of _componentIds){
+                let id = ethers.BigNumber.from(cID.component_id);
+                if (id.gt(30)) {
+                    componentIds.push(id);
+                }
+            }
             const componentNums = componentIds.map(r => ethers.BigNumber.from(1));
             const hash = ethers.utils.solidityKeccak256(['bytes'],
                 [ethers.utils.solidityPack(['uint', `uint[${componentIds.length}]`, `uint[${componentNums.length}]`],
@@ -160,7 +164,7 @@ class NFTService extends Service {
                         trait_type: componentAttrs.find(r => r.trait_type === "position").value,
                         value: componentNums[i] > 1 ? `${componentNums[i]} ${metadata.name}` : metadata.name,
                     })
-                    console.log("format attrs",attrs)
+                    console.log("format attrs", attrs)
                 }
             }
         }
