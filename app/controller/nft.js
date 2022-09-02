@@ -1,6 +1,7 @@
 const Controller = require('egg').Controller;
 const data = require('./data');
 const constant = require('../utils/constant');
+const ethers = require('ethers');
 
 class NFTController extends Controller {
 
@@ -20,8 +21,8 @@ class NFTController extends Controller {
         }
         if (valid) {
             try {
-                await ctx.service.nftService.generateComponent(param);
-                ctx.body = data.newNormalResp({});
+                let result = await ctx.service.nftService.generateComponent(param);
+                ctx.body = data.newNormalResp(result);
             } catch (e) {
                 ctx.body = data.newResp(constant.RESP_CODE_NORMAL_ERROR, e.toString());
             }
@@ -62,12 +63,15 @@ class NFTController extends Controller {
         ctx.validate({
             original_addr: 'address'
         }, param);
-        if (ethers.BigNumber.isBigNumber(param.original_token_id)) {
-            ctx.body = data.newNormalResp(await ctx.service.nftService.getInitParams(param.chain_name,
-                param.original_addr, param.original_token_id));
-        } else {
+        let originalTokenId;
+        try {
+            originalTokenId = ethers.BigNumber.from(param.original_token_id);
+        } catch (e) {
             ctx.body = data.newResp(constant.RESP_CODE_ILLEGAL_PARAM, "illegal param: token_id");
+            return;
         }
+        ctx.body = data.newNormalResp(await ctx.service.nftService.getInitParams(param.chain_name,
+            param.original_addr, originalTokenId.toString()));
     }
 
     async getAttrs() {
@@ -76,18 +80,21 @@ class NFTController extends Controller {
         ctx.validate({
             chain_name: 'chainName'
         }, param);
-        if (ethers.BigNumber.isBigNumber(param.m4m_token_id)) {
-            ctx.body = data.newNormalResp(await ctx.service.nftService.getAttrs(param.chain_name, param.m4m_token_id));
-        } else {
+        let m4mTokenId;
+        try {
+            m4mTokenId = ethers.BigNumber.from(param.m4m_token_id);
+        } catch (e) {
             ctx.body = data.newResp(constant.RESP_CODE_ILLEGAL_PARAM, "illegal param: token_id");
+            return;
         }
+        ctx.body = data.newNormalResp(await ctx.service.nftService.getAttrs(param.chain_name, m4mTokenId.toString()));
     }
 
     async getMetadata() {
         const {ctx} = this;
         let contract = ctx.params.contract;
         let tokenId = ctx.params.token_id;
-        ctx.body = data.newNormalResp(await ctx.service.nftService.getMetadata(contract, tokenId));
+        ctx.body = await ctx.service.nftService.getMetadata(contract, tokenId);
     }
 }
 

@@ -1,7 +1,6 @@
 const ethers = require("ethers");
 const constant = require('./app/utils/constant')
 
-// TODO: verify chain name
 module.exports = app => {
     app.validator.addRule('address', (rule, value) => {
         if (!ethers.utils.isAddress(value)) {

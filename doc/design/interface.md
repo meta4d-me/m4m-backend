@@ -1,4 +1,4 @@
-# Meta-4d.me Backend DB Design Doc
+# Meta4d.me Backend DB Design Doc
 
 ## M4M Components
 
@@ -194,7 +194,7 @@ method: get
 
 url: /api/tokenuri/:contract/:token_id
 
-> example: https://api.meta-4d.me/api/tokenuri/0xb6bb4812a8e075cbad0128e318203553c4ca463d/0
+> example: https://api.meta4d.me/api/tokenuri/0xb6bb4812a8e075cbad0128e318203553c4ca463d/0
 
 return:
 

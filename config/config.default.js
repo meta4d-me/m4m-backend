@@ -60,3 +60,9 @@ exports.customLogger = {
 exports.schedule = {
     directory: [],
 };
+
+exports.cluster ={
+    listen:{
+        hostname: '0.0.0.0'
+    }
+}
