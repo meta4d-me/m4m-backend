@@ -1,22 +1,9 @@
 const zeroAddr = '0x0000000000000000000000000000000000000000';
 const env = require("../../config/env.json");
-
-const BIND_STATUS_ACCEPT_REF = 0;
-const BIND_STATUS_ACTIVE = 1;
-const BIND_STATUS_DEACTIVE = 2;
-
-const OrderStatusInit = 0;
-
 const RESP_CODE_NORMAL_ERROR = 50000;
 
 const RESP_CODE_ILLEGAL_PARAM = 40000;
 const RESP_CODE_ILLEGAL_SIG = 40001;
-
-const SOCIAL_MEDIAS = ["Twitter", "Facebook", "Instagram"];
-
-const VOTER_TYPE_PER_ADDR = 1;
-const VOTER_TYPE_PER_NFT = 2;
-const VOTER_TYPE_SON = 3;
 
 const CHAIN_NAME_MAINNET = "mainnet";
 const CHAIN_NAME_POLYGON = "polygon";
@@ -28,7 +15,7 @@ const ERC1155 = '1155';
 
 const METADATA_EXTERNAL = "https://www.meta4d.me/"
 
-const AUTH_CODE_1= 1;
+const AUTH_CODE_1 = 1;
 
 function getExplorer(chainName) {
     if (chainName === CHAIN_NAME_MAINNET) {
@@ -60,16 +47,10 @@ function getNodeUrl(chainName) {
 
 module.exports = {
     zeroAddr,
-    OrderStatusInit,
     RESP_CODE_NORMAL_ERROR, RESP_CODE_ILLEGAL_PARAM, RESP_CODE_ILLEGAL_SIG,
 
-    SOCIAL_MEDIAS,
-
-    BIND_STATUS_ACCEPT_REF, BIND_STATUS_ACTIVE, BIND_STATUS_DEACTIVE,
-    VOTER_TYPE_PER_ADDR, VOTER_TYPE_PER_NFT, VOTER_TYPE_SON,
-
     CHAIN_NAME_MAINNET, CHAIN_NAME_POLYGON, CHAIN_NAME_RINKEBY, CHAIN_NAME_MUMBAI,
-    getExplorer, getNodeUrl,METADATA_EXTERNAL,
+    getExplorer, getNodeUrl, METADATA_EXTERNAL,
 
     ERC721, ERC1155,
 

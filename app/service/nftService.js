@@ -4,7 +4,7 @@ const {getNodeUrl, METADATA_EXTERNAL, AUTH_CODE_1} = require("../utils/constant"
 const ComponentABI = require("../../contract-abi/M4mComponent.json")
 
 class NFTService extends Service {
-    // TODO: check position attrs
+
     async generateComponent(params) {
         if (!(await this.checkSig(params.component_id, params.sig, AUTH_CODE_1))) {
             throw new Error("ill sig")
@@ -30,10 +30,10 @@ class NFTService extends Service {
         ?
         )`, [params.chain_name, this.config.components[params.chain_name], params.component_id,
             params.description, params.name, params.uri, JSON.stringify(params.attributes)]);
-        return tx.hash;
+        return {tx_hash: tx.hash};
     }
 
-    async bindSnapshot(params) {
+    async bindMetadata(params) {
         if (!(await this.checkSig(params.token_id, params.sig, AUTH_CODE_1))) {
             throw new Error("ill sig")
         }
