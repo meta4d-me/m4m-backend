@@ -53,7 +53,7 @@ class NFTService extends Service {
             const dataDB = this.app.mysql.get('chainData');
             let _componentIds = await dataDB.select(`m4m_components_${chain_name}`, {});
             const componentIds = [];
-            for (const cID of _componentIds){
+            for (const cID of _componentIds) {
                 let id = ethers.BigNumber.from(cID.component_id);
                 if (id.gt(30)) {
                     componentIds.push(id);
@@ -106,7 +106,7 @@ class NFTService extends Service {
                     external_url: METADATA_EXTERNAL,
                     image: metadata.uri,
                     name: metadata.name,
-                    attributes: metadata.attributes,
+                    attributes: JSON.parse(metadata.attributes),
                 }
             }
         }
