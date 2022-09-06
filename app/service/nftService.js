@@ -144,11 +144,9 @@ class NFTService extends Service {
 
     async formatAttrs(chain_name, token_id) {
         const components = await this.app.mysql.get('chainData').get(`m4m_attrs_${chain_name}`, {token_id: token_id});
-        console.log("33333333333", components);
         const componentIds = components.component_ids.split(",");
         const componentNums = components.component_nums.split(",");
         const appDB = this.app.mysql.get('app');
-        console.log("4444444444444", componentIds, componentNums);
         const componentMetadata = await appDB.select(`metadata_${chain_name}`, {
             columns: ['token_id', 'name', 'attributes'], where: {
                 token_id: componentIds,
@@ -156,7 +154,6 @@ class NFTService extends Service {
         });
         const attrs = [];
         for (const metadata of componentMetadata) {
-            console.log(metadata);
             for (let i = 0; i < componentIds.length; i++) {
                 if (metadata.token_id === componentIds[i]) {
                     const componentAttrs = JSON.parse(metadata.attributes);
@@ -164,7 +161,6 @@ class NFTService extends Service {
                         trait_type: componentAttrs.find(r => r.trait_type === "position").value,
                         value: componentNums[i] > 1 ? `${componentNums[i]} ${metadata.name}` : metadata.name,
                     })
-                    console.log("format attrs", attrs)
                 }
             }
         }

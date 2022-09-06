@@ -23,7 +23,10 @@ params:
   // ipfs hash
   "uri": "",
   // attributes that compliant Opense
-  "attrs": {},
+  "attrs": [
+    {},
+    {}
+  ],
   "sig": ""
 }
 ```
