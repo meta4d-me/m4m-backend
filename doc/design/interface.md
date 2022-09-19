@@ -150,6 +150,11 @@ return:
 >
 > m4m_token_id is type of u256
 
+
+### Claim Loot
+
+
+ 
 ### Get M4M-NFT Attrs
 
 method: get
