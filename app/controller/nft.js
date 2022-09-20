@@ -45,6 +45,25 @@ class NFTController extends Controller {
         }
     }
 
+    async getClaimLootParams() {
+        const {ctx} = this;
+        let param = ctx.request.body;
+        ctx.validate({
+            chain_name: 'chainName'
+        }, param);
+        ctx.validate({
+            addr: 'address'
+        }, param);
+        if (param.component_ids.length !== param.component_nums.length) {
+            ctx.body = data.newResp(constant.RESP_CODE_ILLEGAL_PARAM, 'ill ids length');
+            return
+        } try {
+            ctx.body = data.newNormalResp(await ctx.service.nftService.getClaimLootParams(param));
+        } catch (e) {
+            ctx.body = data.newResp(constant.RESP_CODE_NORMAL_ERROR, e.toString());
+        }
+    }
+
     async getComponentStatus() {
         const {ctx} = this;
         let param = ctx.params;

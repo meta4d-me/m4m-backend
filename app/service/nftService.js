@@ -78,6 +78,18 @@ class NFTService extends Service {
         return result;
     }
 
+    async getClaimLootParams(params) {
+        if (!(await this.checkSig(params.uuid, params.sig, AUTH_CODE_1))) {
+            throw new Error("ill sig")
+        }
+        const hash = ethers.utils.solidityKeccak256(['bytes'],
+            [ethers.utils.solidityPack(
+                ['address', 'string', `uint[${params.component_ids.length}]`, `uint[${params.component_nums.length}]`],
+                [params.addr, params.uuid, params.component_ids, params.component_nums])]);
+        const sig = ethers.utils.joinSignature(await this.config.operator.signDigest(hash));
+        return {sig: sig};
+    }
+
     async getAttrs(chain_name, m4m_token_id) {
         const dataDB = this.app.mysql.get('chainData');
         const result = await dataDB.select(`m4m_attrs_${chain_name}`, {

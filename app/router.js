@@ -9,5 +9,6 @@ module.exports = app => {
     router.get('/api/tokenuri/:contract/:token_id', controller.nft.getMetadata);
 
     router.post('/api/v1/component/generate', controller.nft.generateComponent);
+    router.post('/api/v1/component/claim', controller.nft.getClaimLootParams);
     router.post('/api/v1/m4m-nft/bind-metadata', controller.nft.bindMetadata);
 };

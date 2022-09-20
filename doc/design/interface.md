@@ -72,6 +72,51 @@ returns:
 | 0 | pending, wait tx confirmed |
 | 1 | success, created |
 
+### Claim Loot
+
+method: post
+
+url: /api/v1/component/claim
+
+params:
+
+```json
+{
+  "chain_name": "",
+  "addr": "0x12121212121212121212121212121212121222",
+  "uuid": "11111aaaaaaaa",
+  "component_id": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "component_nums": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "sig": ""
+}
+```
+
+> note: uuid is unique identifier for each user in each game
+
+> note: sig = signer.signMessage(uuid), uuid should be string
+
+return:
+
+```json
+{
+  "code": "",
+  "error": "",
+  "data": {
+    "sig": "0x12ad12da12da12da12da12d1a2da121da2d1a2d1a21da21d2a1d2a1d2a1d2a1d2a1d2a1d2a1d2a1d2a1d21a"
+  }
+}
+```
+
 ## M4M-NFT
 
 ### Bind Metadata
@@ -128,18 +173,8 @@ return:
   "data": [
     {
       "m4m_token_id": "81449136432453593952252541924876232285909669905506625386482230805063052117465",
-      "component_ids": [
-        1,
-        2,
-        3,
-        4
-      ],
-      "component_nums": [
-        3,
-        3,
-        1,
-        1
-      ],
+      "component_ids": "1,2,3,4",
+      "component_nums": "2,3,3,4",
       "sig": "0x12ad12da12da12da12da12d1a2da121da2d1a2d1a21da21d2a1d2a1d2a1d2a1d2a1d2a1d2a1d2a1d2a1d21a"
     }
   ]
@@ -150,11 +185,6 @@ return:
 >
 > m4m_token_id is type of u256
 
-
-### Claim Loot
-
-
- 
 ### Get M4M-NFT Attrs
 
 method: get
@@ -171,18 +201,8 @@ return:
     {
       "m4m_token_id": "81449136432453593952252541924876232285909669905506625386482230805063052117465",
       "chain_name": "xxx",
-      "component_ids": [
-        1,
-        2,
-        3,
-        4
-      ],
-      "component_nums": [
-        3,
-        3,
-        1,
-        1
-      ]
+      "component_ids": "1,2,3,4",
+      "component_nums": "2,3,3,4"
     }
   ]
 }
