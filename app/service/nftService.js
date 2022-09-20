@@ -52,14 +52,16 @@ class NFTService extends Service {
             /* generate initial attrs, assign 1 to every component */
             const dataDB = this.app.mysql.get('chainData');
             let _componentIds = await dataDB.select(`m4m_components_${chain_name}`, {});
-            const componentIds = [];
+            let componentIds = [];
             for (const cID of _componentIds) {
                 let id = ethers.BigNumber.from(cID.component_id);
                 if (id.gt(30)) {
                     componentIds.push(id);
                 }
             }
-            const componentNums = componentIds.map(r => ethers.BigNumber.from(1));
+            let selectedResults = await this.selectComponents(chain_name, componentIds);
+            let componentNums = selectedResults.componentNums;
+            componentIds = selectedResults.componentIds;
             const hash = ethers.utils.solidityKeccak256(['bytes'],
                 [ethers.utils.solidityPack(['uint', `uint[${componentIds.length}]`, `uint[${componentNums.length}]`],
                     [m4m_token_id, componentIds, componentNums])]);
@@ -76,6 +78,41 @@ class NFTService extends Service {
             return data;
         }
         return result;
+    }
+
+    async selectComponents(chainName, componentIds) {
+        let components = await this.app.mysql.get('app').select(`metadata_${chainName}`, {
+            where: {
+                token_id: componentIds,
+                contract: this.config.components[chainName]
+            }
+        });
+        let totals = new Map();
+        for (const c of components) {
+            let attrs = JSON.parse(c.attributes);
+            let positionTrait = attrs.find(r => r.trait_type === "position");
+            if (!positionTrait) {
+                continue
+            }
+            let key = positionTrait.value;
+            let values = totals.get(key);
+            if (!values) {
+                values = [c.token_id];
+            } else {
+                values.push(c.token_id);
+            }
+            totals.set(key, values);
+        }
+        let selectedIds = [];
+        for (const key of totals.keys()) {
+            let components = totals.get(key);
+            let random = Math.floor(Math.random() * components.length);
+            selectedIds.push(components[random]);
+        }
+        return {
+            componentIds: selectedIds.map(item => ethers.BigNumber.from(item)),
+            componentNums: selectedIds.map(item => ethers.BigNumber.from(1))
+        }
     }
 
     async getClaimLootParams(params) {
