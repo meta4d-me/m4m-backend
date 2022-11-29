@@ -1,4 +1,4 @@
-# Meta4d.me Backend DB Design Doc
+# Meta4d.me Interface Doc
 
 ## M4M Components
 
@@ -237,6 +237,105 @@ return:
     {},
     {}
   ]
+}
+```
+
+## Query Interface
+
+### Query NFT
+
+method: get
+
+url: api/v1/nfts?chain_name=xxx&addr=xxx&contract=xxx&token_id=xxx&page=xxx&gap=xxx
+
+> note: chain_name is required, addr or contract is required, token_id is optional
+
+return:
+
+```
+{
+  "code": "",
+  "error": "",
+  "data": {
+      "total": 10000,
+      "data": [
+        {
+          "contract": "",
+          "erc": "", // 1155 or 721
+          "token_id": "",
+          "amount": "",
+          "uri": "",
+          "owner": ""
+        }
+      ]
+  }
+}
+```
+
+### Query Collection List of User
+
+method: get
+
+url: /api/v1/collection/list?chain_name=xxx&addr=xxx&page=xxx&gap=xxx
+
+> addr and chain_name are required
+
+return:
+
+```
+{
+  "code": "",
+  "error": "",
+  "data": {
+    "total": 10000, 
+    "data": [
+      {
+        "chain_name":["mainnet"],
+        "id": "aaaa",
+        "name": "collection 1",
+        "img": ""
+      },
+      {
+        "chain_name":["mainnet","polygon"],
+        "id": "aaaa",
+        "name": "collection 2",
+        "img": ""
+      }
+    ]
+  }
+}
+```
+
+### Query NFT by Collection
+
+method: get
+
+url: api/v1/collection/nfts?chain_name=xxx&collection_id=xxx&addr=xxx&page=xxx&gap=xxx
+
+> note: collection_id and chain_name is required; addr is user address, is optional
+
+return:
+
+```
+{
+  "code": "",
+  "error": "",
+  "data": {
+      "collection_id": "",
+      "collection_name": "",
+      "collection_img": "",
+      "total": 10000,
+      "data": [
+        {
+          "contract": "",
+          "erc": "",
+          "token_id": "",
+          "amount": "",
+          "uri": "",
+          "owner": ""
+        }
+      ]
+  }
 }
 ```
 

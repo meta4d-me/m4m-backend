@@ -183,7 +183,7 @@ class NFTService extends Service {
 
     async checkSig(msg, sig, authCode) {
         const digest = ethers.utils.hashMessage(msg);
-        const signer = ethers.utils.recoverAddress(digest, sig)
+        const signer = ethers.utils.recoverAddress(digest, sig);
         const auth = await this.app.mysql.get('app').get('authentication', {addr: signer});
         if (!auth) {
             return false;
@@ -214,6 +214,120 @@ class NFTService extends Service {
             }
         }
         return attrs;
+    }
+
+    async queryNFT(chainName, addr, contract, tokenId, limit, offset) {
+        const mysql = this.app.mysql.get('chainData');
+        let where = [];
+        let param = [];
+        if (addr) {
+            where.push('owner=?');
+            param.push(addr);
+        }
+        if (contract) {
+            where.push('contract=?');
+            param.push(contract);
+            if (tokenId) {
+                where.push('token_id=?');
+                param.push(tokenId);
+            }
+        }
+        let whereClause = where.join(' and ');
+        let total = await mysql.query(`select count(*)
+                                       from nft_${chainName}
+                                       where ` + whereClause, param);
+        total = total[0]['count(*)'];
+        let sql = `select *
+                   from nft_${chainName}
+                   where ` + whereClause + ' order by contract, token_id';
+        if (offset && limit) {
+            sql += ' limit ' + offset + ', ' + limit
+        } else if (limit) {
+            sql += ' limit ' + limit;
+        }
+        return {"total": total, data: await mysql.query(sql, param)};
+    }
+
+    async queryCollectionList(chainName, addr, limit, offset) {
+        const mysql = this.app.mysql.get('chainData');
+        let total, result;
+        total = await mysql.query(
+            `select count(*)
+             from collection
+             where collection.collection_id in (select collection_id
+                                                from collection_map
+                                                where contract in
+                                                      (select distinct contract from nft_${chainName} where owner = ?))`,
+            addr);
+        total = total[0]['count(*)'];
+        //
+        let sql = `select *
+                   from collection
+                   where collection.collection_id in (select collection_id
+                                                      from collection_map
+                                                      where contract in
+                                                            (select distinct contract from nft_${chainName} where owner = ?))`
+        if (offset && limit) {
+            sql += ' limit ' + offset + ', ' + limit
+        } else if (limit) {
+            sql += ' limit ' + limit;
+        }
+        result = await mysql.query(sql, addr);
+
+        const data = result.map(item => {
+            return {
+                chain_name: this.split(item.chain_name, ","),
+                id: item.collection_id,
+                name: item.collection_name,
+                img: item.collection_img
+            };
+        });
+        return {"total": total, data: data};
+    }
+
+    async queryCollectionNFTs(chain_name, collectionId, addr, limit, offset) {
+        const mysql = this.app.mysql.get('chainData');
+        const collectionInfo = await mysql.get('collection', {collection_id: collectionId});
+        const items = await mysql.select('collection_map', {where: {collection_id: collectionId}});
+        if (items.length === 0) {
+            return {
+                total: 0,
+                collection_id: collectionInfo.collection_id,
+                collection_name: collectionInfo.collection_name,
+                collection_img: collectionInfo.collection_img,
+                data: null,
+            }
+        }
+        const contracts = items.map((item) => item.contract);
+        let sql = `select *
+                   from nft_${chain_name}
+                   where `;
+        let queryTotalSql = `select count(*)
+                             from nft_${chain_name}
+                             where `;
+        const whereClause = ['contract in (?)'];
+        const param = [contracts];
+        if (addr) {
+            whereClause.push('owner=?');
+            param.push(addr);
+        }
+        sql += whereClause.join(' and ') + ' order by contract, token_id';
+        queryTotalSql += whereClause.join(' and ');
+        if (offset && limit) {
+            sql += ' limit ' + offset + ', ' + limit
+        } else if (limit) {
+            sql += ' limit ' + limit;
+        }
+        let total = await mysql.query(queryTotalSql, param);
+        total = total[0]['count(*)'];
+        const results = await mysql.query(sql, param);
+        return {
+            total: total,
+            collection_id: collectionInfo.collection_id,
+            collection_name: collectionInfo.collection_name,
+            collection_img: collectionInfo.collection_img,
+            data: results
+        };
     }
 }
 

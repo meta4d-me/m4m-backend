@@ -2,6 +2,7 @@ const Controller = require('egg').Controller;
 const data = require('./data');
 const constant = require('../utils/constant');
 const ethers = require('ethers');
+const utils = require("../utils/utils");
 
 class NFTController extends Controller {
 
@@ -57,7 +58,8 @@ class NFTController extends Controller {
         if (param.component_ids.length !== param.component_nums.length) {
             ctx.body = data.newResp(constant.RESP_CODE_ILLEGAL_PARAM, 'ill ids length');
             return
-        } try {
+        }
+        try {
             ctx.body = data.newNormalResp(await ctx.service.nftService.getClaimLootParams(param));
         } catch (e) {
             ctx.body = data.newResp(constant.RESP_CODE_NORMAL_ERROR, e.toString());
@@ -114,6 +116,57 @@ class NFTController extends Controller {
         let contract = ctx.params.contract;
         let tokenId = ctx.params.token_id;
         ctx.body = await ctx.service.nftService.getMetadata(contract, tokenId);
+    }
+
+    async queryNFT() {
+        const {ctx} = this;
+        let param = ctx.query;
+        ctx.validate({
+            chain_name: 'chainName'
+        }, param);
+        if (!ethers.utils.isAddress(param.contract)) {
+            param.contract = undefined;
+        }
+        if (!ethers.utils.isAddress(param.addr)) {
+            param.addr = undefined;
+        }
+        if (!param.addr && !param.contract) {
+            ctx.body = data.newResp(constant.RESP_CODE_ILLEGAL_PARAM, 'illegal user addr and contract addr', {});
+        }
+        const [limit, offset] = utils.parsePageParamToDBParam(param.page, param.gap);
+        ctx.body = data.newNormalResp(await ctx.service.nftService.queryNFT(param.chain_name, param.addr,
+            param.contract, param.token_id, limit, offset));
+    }
+
+    async queryCollectionList() {
+        const {ctx} = this;
+        let param = ctx.query;
+        ctx.validate({
+            addr: 'address'
+        }, param);
+        ctx.validate({
+            chain_name: 'chainName'
+        }, param);
+        const [limit, offset] = utils.parsePageParamToDBParam(param.page, param.gap);
+        ctx.body = data.newNormalResp(await ctx.service.nftService.queryCollectionList(param.chain_name, param.addr,
+            limit, offset));
+    }
+
+    async queryCollectionNFTs() {
+        const {ctx} = this;
+        let param = ctx.query;
+        if (param.addr) {
+            ctx.validate({
+                addr: 'address'
+            }, param);
+        }
+        ctx.validate({
+            chain_name: 'chainName'
+        }, param);
+        let collectionId = param.collection_id;
+        const [limit, offset] = utils.parsePageParamToDBParam(param.page, param.gap);
+        ctx.body = data.newNormalResp(
+            await ctx.service.nftService.queryCollectionNFTs(param.chain_name, collectionId, param.addr, limit, offset));
     }
 }
 
