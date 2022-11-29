@@ -329,6 +329,17 @@ class NFTService extends Service {
             data: results
         };
     }
+
+    split(str, split) {
+        const splited = str.split(split);
+        const res = [];
+        for (const s of splited) {
+            if (s) {
+                res.push(s);
+            }
+        }
+        return res;
+    }
 }
 
 module.exports = NFTService;
