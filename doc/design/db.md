@@ -20,21 +20,22 @@ tableName: initialization_${chain_name}
 
 tableName: metadata_${chain_name}
 
-| Key         | type           | Desc              | Note                    |
-|-------------|----------------|-------------------|-------------------------|
-| chain_name  | varchar(10)    | chain name        |               |
-| contract    | varchar(42)    |   contract addr | PK |
-| token_id    | varchar(256)   |   token id | PK |
-| description | varchar(1000)  | token description |                       |
-| name        | varchar(60)    | token name        |                       |
-| uri         | varchar(200)   | ifps uri hash     |     |
-| attributes  | varchar(10000) | jsonfy attrs      |  |
+| Key         | type           | Desc               | Note |
+|-------------|----------------|--------------------|------|
+| chain_name  | varchar(10)    | chain name         |      |
+| contract    | varchar(42)    | contract addr      | PK   |
+| token_id    | varchar(256)   | token id           | PK   |
+| description | varchar(1000)  | token description  |      |
+| name        | varchar(60)    | token name         |      |
+| uri         | varchar(200)   | ifps uri hash      |      |
+| attributes  | varchar(10000) | jsonfy attrs       |      |
+| prev        | varchar(256)   | previous ipfs hash |      |
 
 ## Authentication
 
 > who can post request
 
-| Key         | type           | Desc                | Note |
-|-------------|----------------|---------------------|------|
-| addr        | varchar(42)    | address             |  PK  |
-| auth_code   | tinyint        | authentication code |      |
+| Key       | type        | Desc                | Note |
+|-----------|-------------|---------------------|------|
+| addr      | varchar(42) | address             | PK   |
+| auth_code | tinyint     | authentication code |      |

@@ -30,9 +30,9 @@ class NFTService extends Service {
         const attrs = await this.formatAttrs(params.chain_name, params.m4m_token_id);
         const appDB = this.app.mysql.get('app');
         const tableName = `metadata_${params.chain_name}`;
-        await appDB.query('replace into ' + tableName + ' VALUES ( ?, ?, ?, ?, ?, ?, ? )',
+        await appDB.query('replace into ' + tableName + ' VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )',
             [params.chain_name, this.config.m4mNFT[params.chain_name], params.m4m_token_id,
-                params.description, params.name, params.uri, JSON.stringify(attrs)]);
+                params.description, params.name, params.uri, JSON.stringify(attrs), params.prev]);
     }
 
     async getComponentStatus(chainName, componentId) {
@@ -153,6 +153,7 @@ class NFTService extends Service {
                 return {
                     description: metadata.description,
                     external_url: METADATA_EXTERNAL,
+                    prev: metadata.prev,
                     image: metadata.uri,
                     name: metadata.name,
                     attributes: JSON.parse(metadata.attributes),
@@ -171,6 +172,7 @@ class NFTService extends Service {
                 return {
                     description: metadata.description,
                     external_url: METADATA_EXTERNAL,
+                    prev: metadata.prev,
                     image: metadata.uri,
                     name: metadata.name,
                     attributes: await this.formatAttrs(chain_name, tokenId),

@@ -29,3 +29,6 @@ create table if not exists `authentication`
     primary key (addr)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
+
+alter table metadata
+    add prev varchar(256) not null default '';
