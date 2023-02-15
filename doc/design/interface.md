@@ -22,6 +22,8 @@ params:
   "symbol": "",
   // ipfs hash
   "uri": "",
+  // previous ipfs hash
+  "prev": "",
   // attributes that compliant Opense
   "attrs": [
     {},

@@ -19,7 +19,7 @@ class NFTService extends Service {
         const tableName = `metadata_${params.chain_name}`;
         await appDB.query('replace into ' + tableName + ' VALUES ( ?, ?, ?, ?, ?, ?, ? )',
             [params.chain_name, this.config.components[params.chain_name], params.component_id,
-                params.description, params.name, params.uri, JSON.stringify(params.attrs)]);
+                params.description, params.name, params.uri, JSON.stringify(params.attrs), params.prev]);
         return {tx_hash: tx.hash};
     }
 
