@@ -69,10 +69,10 @@ returns:
 }
 ```
 
-| status | desc |
-| --- | --- |
-| 0 | pending, wait tx confirmed |
-| 1 | success, created |
+| status | desc                       |
+|--------|----------------------------|
+| 0      | pending, wait tx confirmed |
+| 1      | success, created           |
 
 ### Claim Loot
 
@@ -187,6 +187,22 @@ return:
 > m4m_token_id: token id of m4m NFT
 >
 > m4m_token_id is type of u256
+>
+> m4m_token_id = ethers.BigNumber.from(ethers.utils.solidityKeccak256(['bytes'],[
+> ethers.utils.solidityPack(['address', 'uint'], [simpleNFT.address, simpleNFTId])]));
+
+#### how to generate m4m_token_id off chain
+
+```js
+let originalNFTAddr = '0x1212121'; // configured value
+let originalTokenId = 123; // parsed original nft token id, should query it on chian
+let hash = ethers.utils.solidityKeccak256(['bytes'],
+    [ethers.utils.solidityPack(['address', 'uint'], [originalNFTAddr, originalTokenId])]);
+let m4mNFTId = ethers.BigNumber.from(hash);
+```
+
+> note: originalTokenId should be queried from on-chain contract originalNFT.tokenIndex(), and this value would
+> increment 1 after each mint
 
 ### Get M4M-NFT Attrs
 
@@ -356,11 +372,11 @@ uniform return:
 
 ### code
 
-`code=1` means that success, others is failed。
+`code=0` means that success, others is failed。
 
 ### error
 
-when `code!=1`, return error info。
+when `code!=0`, return error info。
 
 ### data
 
