@@ -10,7 +10,7 @@ url: /api/v1/component/generate
 
 params:
 
-```json
+```
 {
   "chain_name": "",
   // code of equipment, should be string of number
@@ -121,7 +121,7 @@ return:
 
 ## M4M-NFT
 
-### Bind Metadata
+### Bind M4M NFT Metadata
 
 bind metadata to m4m-nft
 
@@ -146,6 +146,47 @@ params:
 ```
 
 > note: sig = signer.signMessage(m4m_token_id), m4m_token_id should be string
+
+return:
+
+```json
+{
+  "code": "",
+  "error": "",
+  "data": {}
+}
+```
+
+### Bind M4M Components Metadata
+
+bind metadata to component, only bind once
+
+> note: components should be generated throw [prepare new component](#prepare-new-component), but we
+> provide `prepareAndMint` method at M4mComponentV2 contracts, so backend should support bind metadata for component.
+
+url: /api/v1/component/bind-metadata
+
+method: post
+
+params:
+
+```json
+{
+  "chain_name": "",
+  "component_id": "",
+  "prev": "",
+  "description": "xxx xxx xxx",
+  "name": "",
+  "uri": "",
+  "attrs": [
+    {},
+    {}
+  ],
+  "sig": ""
+}
+```
+
+> note: sig = signer.signMessage(component_id), m4m_token_id should be string
 
 return:
 

@@ -14,4 +14,5 @@ module.exports = app => {
     router.post('/api/v1/component/generate', controller.nft.generateComponent);
     router.post('/api/v1/component/claim', controller.nft.getClaimLootParams);
     router.post('/api/v1/m4m-nft/bind-metadata', controller.nft.bindMetadata);
+    router.post('/api/v1/component/bind-metadata', controller.nft.bindComponentMetadata);
 };

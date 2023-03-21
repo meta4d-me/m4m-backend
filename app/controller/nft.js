@@ -46,6 +46,20 @@ class NFTController extends Controller {
         }
     }
 
+    async bindComponentMetadata() {
+        const {ctx} = this;
+        let param = ctx.request.body;
+        ctx.validate({
+            chain_name: 'chainName'
+        }, param);
+        try {
+            await ctx.service.nftService.bindComponentMetadata(param);
+            ctx.body = data.newNormalResp({});
+        } catch (e) {
+            ctx.body = data.newResp(constant.RESP_CODE_NORMAL_ERROR, e.toString());
+        }
+    }
+
     async getClaimLootParams() {
         const {ctx} = this;
         let param = ctx.request.body;

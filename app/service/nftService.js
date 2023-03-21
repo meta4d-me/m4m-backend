@@ -35,6 +35,17 @@ class NFTService extends Service {
                 params.description, params.name, params.uri, JSON.stringify(attrs), params.prev]);
     }
 
+    async bindComponentMetadata(params) {
+        if (!(await this.checkSig(params.component_id, params.sig, AUTH_CODE_1))) {
+            throw new Error("ill sig")
+        }
+        const appDB = this.app.mysql.get('app');
+        const tableName = `metadata_${params.chain_name}`;
+        await appDB.query('insert into ' + tableName + ' VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )',
+            [params.chain_name, this.config.components[params.chain_name], params.component_id,
+                params.description, params.name, params.uri, JSON.stringify(params.attrs), params.prev]);
+    }
+
     async getComponentStatus(chainName, componentId) {
         let result = await this.app.mysql.get('chainData').get(`m4m_components_${chainName}`, {component_id: componentId});
         let status = !result || result.length ? 0 : 1;
