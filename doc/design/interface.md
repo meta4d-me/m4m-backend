@@ -245,6 +245,48 @@ let m4mNFTId = ethers.BigNumber.from(hash);
 > note: originalTokenId should be queried from on-chain contract originalNFT.tokenIndex(), and this value would
 > increment 1 after each mint
 
+### Sign Initialization Params
+
+method: post
+
+url: /api/v1/m4m-nft/init
+
+params:
+
+```json
+{
+  "chain_name": "mumbai",
+  "original_addr": "origin NFT address",
+  "original_token_id": "origin token id",
+  "component_ids": [
+    "",
+    "",
+    ""
+  ],
+  "component_nums": [
+    "",
+    "",
+    ""
+  ],
+  "sig": ""
+}
+```
+
+> note: sig = signer.signMessage(original_addr+original_token_id)
+
+return:
+
+```json
+{
+  "code": "",
+  "error": "",
+  "data": {
+    "m4m_token_id": "81449136432453593952252541924876232285909669905506625386482230805063052117465",
+    "sig": "0x12ad12da12da12da12da12d1a2da121da2d1a2d1a21da21d2a1d2a1d2a1d2a1d2a1d2a1d2a1d2a1d2a1d21a"
+  }
+}
+```
+
 ### Get M4M-NFT Attrs
 
 method: get

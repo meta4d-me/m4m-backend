@@ -109,6 +109,30 @@ class NFTController extends Controller {
             param.original_addr, originalTokenId.toString()));
     }
 
+    async signInitParams() {
+        const {ctx} = this;
+        let param = ctx.request.body;
+        ctx.validate({
+            chain_name: 'chainName'
+        }, param);
+        ctx.validate({
+            original_addr: 'address'
+        }, param);
+        let originalTokenId;
+        try {
+            originalTokenId = ethers.BigNumber.from(param.original_token_id);
+        } catch (e) {
+            ctx.body = data.newResp(constant.RESP_CODE_ILLEGAL_PARAM, "illegal param: token_id");
+            return;
+        }
+        try {
+            ctx.body = data.newNormalResp(await ctx.service.nftService.signInitParams(param.chain_name,
+                param.original_addr, originalTokenId.toString(), param.component_ids, param.component_nums, param.sig));
+        } catch (e) {
+            ctx.body = data.newResp(constant.RESP_CODE_NORMAL_ERROR, e.toString());
+        }
+    }
+
     async getAttrs() {
         const {ctx} = this;
         let param = ctx.request.query;

@@ -91,6 +91,35 @@ class NFTService extends Service {
         return result;
     }
 
+    async signInitParams(chain_name, original_addr, original_token_id, componentIds, componentNums, authSig) {
+        if (!(await this.checkSig(original_addr + original_token_id, authSig, AUTH_CODE_1))) {
+            throw new Error("ill sig")
+        }
+        const appDB = this.app.mysql.get('app');
+        let hash = ethers.utils.solidityKeccak256(['bytes'],
+            [ethers.utils.solidityPack(['address', 'uint'],
+                [original_addr, ethers.BigNumber.from(original_token_id)])]);
+        let m4m_token_id = ethers.BigNumber.from(hash);
+        let result = await appDB.get(`initialization_${chain_name}`, {token_id: m4m_token_id.toString()});
+        if (!result || result.length === 0) {
+            const hash = ethers.utils.solidityKeccak256(['bytes'],
+                [ethers.utils.solidityPack(['uint', `uint[${componentIds.length}]`, `uint[${componentNums.length}]`],
+                    [m4m_token_id, componentIds, componentNums])]);
+            const sig = ethers.utils.joinSignature(await this.config.operator.signDigest(hash));
+            // save to db
+            const data = {
+                chain_name: chain_name,
+                token_id: m4m_token_id.toString(),
+                component_ids: componentIds.join(','),
+                component_nums: componentNums.join(','),
+                sig: sig
+            };
+            await appDB.insert(`initialization_${chain_name}`, data);
+            return data;
+        }
+        return result;
+    }
+
     async selectComponents(chainName, componentIds) {
         let components = await this.app.mysql.get('app').select(`metadata_${chainName}`, {
             where: {
